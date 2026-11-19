@@ -498,7 +498,8 @@ def init_global_vars(dist_dir, app_name, args):
 
 
 def update_license_file(app_name):
-    if app_name == "RustDesk":
+    # Nogix Remote keeps the original text: it names the RustDesk copyright holder.
+    if app_name in ("RustDesk", "NogixRemote"):
         return
     license_file = Path(sys.argv[0]).parent.joinpath("Package/License.rtf")
     with open(license_file, "r", encoding="utf-8") as f:

@@ -8,6 +8,8 @@ on:
 
 jobs:
   run-flutter-nightly-build:
+    # Forks such as Nogix Remote build only on demand, not every night.
+    if: ${{ github.repository == 'rustdesk/rustdesk' || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/flutter-build.yml
     secrets: inherit
     with:
