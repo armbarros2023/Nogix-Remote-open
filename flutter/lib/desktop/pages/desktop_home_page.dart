@@ -24,6 +24,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:window_manager/window_manager.dart';
 import 'package:window_size/window_size.dart' as window_size;
 import '../widgets/button.dart';
+import '../widgets/nogix_theme.dart';
 
 class DesktopHomePage extends StatefulWidget {
   const DesktopHomePage({Key? key}) : super(key: key);
@@ -59,6 +60,9 @@ class _DesktopHomePageState extends State<DesktopHomePage>
   Widget build(BuildContext context) {
     super.build(context);
     final isIncomingOnly = bind.isIncomingOnly();
+    if (!isIncomingOnly && !bind.isOutgoingOnly()) {
+      return _buildBlock(child: _buildNogixHome(context));
+    }
     return _buildBlock(
         child: Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,6 +178,139 @@ class _DesktopHomePageState extends State<DesktopHomePage>
               )
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildNogixHome(BuildContext context) {
+    return Container(
+      color: NogixColors.canvas(context),
+      child: Column(
+        children: [
+          const NogixTopBar(),
+          buildPresetPasswordWarning(),
+          Obx(() => buildHelpCards(stateGlobal.updateUrl.value))
+              .paddingSymmetric(horizontal: 12),
+          Expanded(
+            child: ChangeNotifierProvider.value(
+              value: gFFI.serverModel,
+              child: ConnectionPage(
+                nogixLocalCard: Consumer<ServerModel>(
+                    builder: (context, model, _) =>
+                        _buildNogixLocalCard(context, model)),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNogixLocalCard(BuildContext context, ServerModel model) {
+    final showOneTime = model.approveMode != 'click' &&
+        model.verificationMethod != kUsePermanentPassword;
+    final ink = NogixColors.ink(context);
+    final modes = <(String, String)>[
+      ('password', 'Accept sessions via password'),
+      ('click', 'Accept sessions via click'),
+      (defaultOptionApproveMode, 'Accept sessions via both'),
+    ];
+    var current = model.approveMode;
+    if (!modes.any((m) => m.$1 == current)) current = defaultOptionApproveMode;
+    final modeFixed =
+        bind.isDisableSettings() || isOptionFixed(kOptionApproveMode);
+    void copy(String text) {
+      Clipboard.setData(ClipboardData(text: text));
+      showToast(translate("Copied"));
+    }
+
+    Widget iconBtn(IconData icon, String tip, VoidCallback onTap) => IconButton(
+          tooltip: translate(tip),
+          onPressed: onTap,
+          icon: Icon(icon, size: 19, color: NogixColors.primary),
+          splashRadius: 18,
+        );
+    Widget value(TextEditingController c, double size) => TextFormField(
+          controller: c,
+          readOnly: true,
+          decoration: const InputDecoration(
+              border: InputBorder.none, isDense: true),
+          style: TextStyle(
+              fontSize: size,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 2,
+              color: ink),
+        ).workaroundFreezeLinuxMint();
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+      decoration: NogixColors.localCard(context),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(translate("Your Desktop"),
+              style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 12),
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            for (final m in modes)
+              NogixChip(
+                label: translate(m.$2),
+                selected: current == m.$1,
+                onTap: modeFixed
+                    ? null
+                    // Installed builds keep this setting behind the
+                    // settings unlock, so send the user there.
+                    : () {
+                        if (bind.mainIsInstalled()) {
+                          DesktopSettingPage.switch2page(
+                              SettingsTabKey.safety);
+                        } else {
+                          model.setApproveMode(m.$1);
+                        }
+                      },
+              ),
+          ]),
+          const SizedBox(height: 16),
+          NogixLabel(translate("ID")),
+          Container(
+            padding: const EdgeInsets.only(left: 14, right: 4),
+            decoration: nogixFieldBox(context, NogixColors.primary),
+            child: Row(children: [
+              Expanded(
+                child: GestureDetector(
+                    onDoubleTap: () => copy(model.serverId.text),
+                    child: value(model.serverId, 22)),
+              ),
+              iconBtn(Icons.copy_rounded, 'Copy',
+                  () => copy(model.serverId.text)),
+              buildPopupMenu(context),
+            ]),
+          ),
+          const SizedBox(height: 14),
+          NogixLabel(translate("One-time Password")),
+          Container(
+            padding: const EdgeInsets.only(left: 14, right: 4),
+            decoration: nogixFieldBox(context, NogixColors.primary),
+            child: Row(children: [
+              Expanded(
+                child: GestureDetector(
+                    onDoubleTap: () {
+                      if (showOneTime) copy(model.serverPasswd.text);
+                    },
+                    child: value(model.serverPasswd, 18)),
+              ),
+              if (showOneTime)
+                iconBtn(Icons.refresh_rounded, 'Refresh Password',
+                    () => bind.mainUpdateTemporaryPassword()),
+              if (!bind.isDisableSettings())
+                iconBtn(Icons.edit_rounded, 'Change Password',
+                    () => DesktopSettingPage.switch2page(SettingsTabKey.safety)),
+              if (showOneTime)
+                iconBtn(Icons.copy_rounded, 'Copy',
+                    () => copy(model.serverPasswd.text)),
+            ]),
+          ),
+        ],
       ),
     );
   }

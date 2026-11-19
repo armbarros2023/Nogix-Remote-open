@@ -7,6 +7,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_hbb/common/widgets/connection_page_title.dart';
 import 'package:flutter_hbb/consts.dart';
+import 'package:flutter_hbb/desktop/widgets/nogix_theme.dart';
 import 'package:flutter_hbb/desktop/widgets/popup_menu.dart';
 import 'package:flutter_hbb/models/state_model.dart';
 import 'package:get/get.dart';
@@ -189,7 +190,9 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
 
 /// Connection page for connecting to a remote peer.
 class ConnectionPage extends StatefulWidget {
-  const ConnectionPage({Key? key}) : super(key: key);
+  /// Set by the Nogix Remote home page: shows its layout with this card on the left.
+  final Widget? nogixLocalCard;
+  const ConnectionPage({Key? key, this.nogixLocalCard}) : super(key: key);
 
   @override
   State<ConnectionPage> createState() => _ConnectionPageState();
@@ -303,6 +306,7 @@ class _ConnectionPageState extends State<ConnectionPage>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.nogixLocalCard != null) return _buildNogix(context);
     final isOutgoingOnly = bind.isOutgoingOnly();
     return Column(
       children: [
@@ -376,12 +380,16 @@ class _ConnectionPageState extends State<ConnectionPage>
   /// UI for the remote ID TextField.
   /// Search for a peer.
   Widget _buildRemoteIDTextField(BuildContext context) {
+    final nogix = widget.nogixLocalCard != null;
     var w = Container(
-      width: 320 + 20 * 2,
+      width: nogix ? null : 320 + 20 * 2,
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 22),
       decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(13)),
-          border: Border.all(color: Theme.of(context).colorScheme.background)),
+          border: Border.all(
+              color: nogix
+                  ? Colors.transparent
+                  : Theme.of(context).colorScheme.background)),
       child: Ink(
         child: Column(
           children: [
@@ -660,5 +668,77 @@ class _ConnectionPageState extends State<ConnectionPage>
     );
     return Container(
         constraints: const BoxConstraints(maxWidth: 600), child: w);
+  }
+
+  Widget _buildNogix(BuildContext context) {
+    final modes = <(String, VoidCallback)>[
+      ('Transfer file', () => onConnect(isFileTransfer: true)),
+      ('Terminal', () => onConnect(isTerminal: true)),
+      ('TCP tunneling', () => onConnect(isTcpTunneling: true)),
+      ('View camera', () => onConnect(isViewCamera: true)),
+    ];
+    final remoteCard = Container(
+      padding: const EdgeInsets.only(bottom: 16),
+      decoration: NogixColors.remoteCard(context),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildRemoteIDTextField(context),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: modes
+                .map((m) => NogixChip(
+                    label: translate(m.$1),
+                    color: NogixColors.teal,
+                    onTap: m.$2))
+                .toList(),
+          ).paddingSymmetric(horizontal: 20),
+        ],
+      ),
+    );
+    final cards = Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: widget.nogixLocalCard!),
+                  const SizedBox(width: 16),
+                  Expanded(child: remoteCard),
+                ],
+              );
+    final peers = Container(
+      padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
+      decoration: NogixColors.recentSection,
+      child: Theme(data: MyTheme.darkTheme, child: PeerTabPage()),
+    );
+    const pad = EdgeInsets.fromLTRB(24, 18, 24, 12);
+    return Column(
+      children: [
+        Expanded(
+          child: LayoutBuilder(builder: (context, box) {
+            // Small windows scroll instead of squeezing the peer list away.
+            if (box.maxHeight < 560) {
+              return SingleChildScrollView(
+                padding: pad,
+                child: Column(children: [
+                  cards,
+                  const SizedBox(height: 16),
+                  SizedBox(height: 300, child: peers),
+                ]),
+              );
+            }
+            return Padding(
+              padding: pad,
+              child: Column(children: [
+                cards,
+                const SizedBox(height: 16),
+                Expanded(child: peers),
+              ]),
+            );
+          }),
+        ),
+        SizedBox(
+            height: 44, child: NogixFooter(status: OnlineStatusWidget())),
+      ],
+    );
   }
 }
