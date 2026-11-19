@@ -973,8 +973,8 @@ _connectDialog(
   final errUsername = ''.obs;
   var rememberPassword = false;
   if (passwordController != null) {
-    rememberPassword =
-        await bind.sessionGetRemember(sessionId: sessionId) ?? false;
+    // Nogix Remote: "Remember password" starts checked; the user can untick it.
+    rememberPassword = true;
   }
   if (osUsernameController != null) {
     osUsernameController.addListener(() {
