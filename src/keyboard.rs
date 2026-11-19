@@ -1015,7 +1015,7 @@ pub fn event_to_key_events(
         _ => {}
     }
 
-    if let Some(key_event) = volume_key_event(event) {
+    if let Some(key_event) = volume_key_event(&event.event_type) {
         return vec![key_event];
     }
 
@@ -1054,8 +1054,8 @@ pub fn event_to_key_events(
 
 /// Media volume keys travel as control keys in every keyboard mode, so the
 /// peer presses its own volume keys instead of a scan code it cannot replay.
-fn volume_key_event(event: &Event) -> Option<KeyEvent> {
-    let (key, down) = match event.event_type {
+fn volume_key_event(event_type: &EventType) -> Option<KeyEvent> {
+    let (key, down) = match *event_type {
         EventType::KeyPress(key) => (key, true),
         EventType::KeyRelease(key) => (key, false),
         _ => return None,
@@ -1723,5 +1723,33 @@ pub mod input_source {
                 CONFIG_INPUT_SOURCE_2_TIP.to_string(),
             ),
         ]
+    }
+}
+
+#[cfg(test)]
+mod nogix_volume_tests {
+    use super::*;
+
+    #[test]
+    fn volume_keys_become_legacy_control_keys() {
+        for (key, control_key) in [
+            (Key::VolumeUp, ControlKey::VolumeUp),
+            (Key::VolumeDown, ControlKey::VolumeDown),
+            (Key::VolumeMute, ControlKey::VolumeMute),
+        ] {
+            for (event_type, down) in [
+                (EventType::KeyPress(key), true),
+                (EventType::KeyRelease(key), false),
+            ] {
+                let key_event = volume_key_event(&event_type).expect("volume key");
+                assert_eq!(key_event.mode.enum_value(), Ok(KeyboardMode::Legacy));
+                assert_eq!(
+                    key_event.union,
+                    Some(key_event::Union::ControlKey(control_key.into()))
+                );
+                assert_eq!(key_event.down, down);
+            }
+        }
+        assert!(volume_key_event(&EventType::KeyPress(Key::KeyA)).is_none());
     }
 }

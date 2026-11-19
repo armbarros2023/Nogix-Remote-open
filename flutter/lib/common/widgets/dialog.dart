@@ -961,6 +961,8 @@ void enterUserLoginAndPasswordDialog(SessionID sessionId,
   );
 }
 
+const _kNogixNoRemember = 'nogix-no-remember';
+
 _connectDialog(
   SessionID sessionId,
   OverlayDialogManager dialogManager, {
@@ -973,8 +975,11 @@ _connectDialog(
   final errUsername = ''.obs;
   var rememberPassword = false;
   if (passwordController != null) {
-    // Nogix Remote: "Remember password" starts checked; the user can untick it.
-    rememberPassword = true;
+    // Nogix Remote: "Remember password" starts checked unless the user unticked
+    // it last time for this computer.
+    rememberPassword = await bind.sessionGetOption(
+            sessionId: sessionId, arg: _kNogixNoRemember) !=
+        'Y';
   }
   if (osUsernameController != null) {
     osUsernameController.addListener(() {
@@ -1003,6 +1008,12 @@ _connectDialog(
       final osPassword = osPasswordController?.text.trim() ?? '';
       final password = passwordController?.text.trim() ?? '';
       if (passwordController != null && password.isEmpty) return;
+      if (passwordController != null) {
+        bind.sessionPeerOption(
+            sessionId: sessionId,
+            name: _kNogixNoRemember,
+            value: rememberPassword ? '' : 'Y');
+      }
       gFFI.login(
         osUsername,
         osPassword,

@@ -151,7 +151,7 @@ static void my_application_activate(GApplication* application) {
 
   // auto bdw = bitsdojo_window_from(window); // <--- add this line
   // bdw->setCustomFrame(true);               // <-- add this line
-  int width = 1040, height = 760;
+  int width = 1000, height = 680;
   if (gIsConnectionManager) {
     width = 300;
     height = 490;

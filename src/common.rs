@@ -2512,7 +2512,25 @@ pub fn rustdesk_interval(i: Interval) -> ThrottledInterval {
     ThrottledInterval::new(i)
 }
 
+/// Nogix Remote defaults, applied before custom.txt so a custom config still wins:
+/// idle incoming sessions close after 15 minutes, the remote screen locks when a
+/// session ends, and the one-time password has 8 characters.
+fn set_nogix_default_settings() {
+    for (map, key, value) in [
+        (&*config::DEFAULT_SETTINGS, "allow-auto-disconnect", "Y"),
+        (&*config::DEFAULT_SETTINGS, "auto-disconnect-timeout", "15"),
+        (&*config::DEFAULT_SETTINGS, "temporary-password-length", "8"),
+        (&*config::DEFAULT_DISPLAY_SETTINGS, "lock_after_session_end", "Y"),
+    ] {
+        map.write()
+            .unwrap()
+            .entry(key.to_owned())
+            .or_insert_with(|| value.to_owned());
+    }
+}
+
 pub fn load_custom_client() {
+    set_nogix_default_settings();
     #[cfg(debug_assertions)]
     if let Ok(data) = std::fs::read_to_string("./custom.txt") {
         read_custom_client(data.trim());
