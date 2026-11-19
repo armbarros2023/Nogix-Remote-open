@@ -234,7 +234,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           controller: c,
           readOnly: true,
           decoration: const InputDecoration(
-              border: InputBorder.none, isDense: true),
+              border: InputBorder.none, isDense: true, filled: false),
           style: TextStyle(
               fontSize: size,
               fontWeight: FontWeight.w700,
