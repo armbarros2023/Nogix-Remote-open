@@ -324,7 +324,7 @@ class NogixHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 236,
+      height: 256,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: const Color(0xFF040C1B),
@@ -359,7 +359,8 @@ class NogixHero extends StatelessWidget {
           child: FractionallySizedBox(
             widthFactor: 0.55,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(4, 26, 30, 20),
+              // Top room keeps the eyebrow clear of the top-right tagline.
+              padding: const EdgeInsets.fromLTRB(4, 46, 30, 16),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -377,7 +378,7 @@ class NogixHero extends StatelessWidget {
                   const SizedBox(height: 8),
                   Flexible(
                     child: Image.asset('assets/nogix/wordmark.png',
-                        height: 58, fit: BoxFit.contain,
+                        height: 52, fit: BoxFit.contain,
                         alignment: Alignment.centerLeft),
                   ),
                   const SizedBox(height: 4),
