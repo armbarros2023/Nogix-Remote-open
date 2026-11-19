@@ -1,7 +1,7 @@
-Name:       rustdesk
+Name:       nogixremote
 Version:    1.5.3
 Release:    0
-Summary:    RPM package
+Summary:    Nogix Remote
 License:    GPL-3.0
 URL:        https://rustdesk.com
 Vendor:     rustdesk <info@rustdesk.com>
@@ -24,21 +24,21 @@ The best open-source remote desktop client software, written in Rust.
 
 %install
 
-mkdir -p "%{buildroot}/usr/share/rustdesk" && cp -r ${HBB}/flutter/build/linux/x64/release/bundle/* -t "%{buildroot}/usr/share/rustdesk"
+mkdir -p "%{buildroot}/usr/share/nogixremote" && cp -r ${HBB}/flutter/build/linux/x64/release/bundle/* -t "%{buildroot}/usr/share/nogixremote"
 mkdir -p "%{buildroot}/usr/bin"
-install -Dm 644 $HBB/res/rustdesk.service -t "%{buildroot}/usr/share/rustdesk/files"
-install -Dm 644 $HBB/res/rustdesk.desktop -t "%{buildroot}/usr/share/rustdesk/files"
-install -Dm 644 $HBB/res/rustdesk-link.desktop -t "%{buildroot}/usr/share/rustdesk/files"
-install -Dm 644 $HBB/res/128x128@2x.png "%{buildroot}/usr/share/icons/hicolor/256x256/apps/rustdesk.png"
-install -Dm 644 $HBB/res/scalable.svg "%{buildroot}/usr/share/icons/hicolor/scalable/apps/rustdesk.svg"
+install -Dm 644 $HBB/res/nogixremote.service -t "%{buildroot}/usr/share/nogixremote/files"
+install -Dm 644 $HBB/res/nogixremote.desktop -t "%{buildroot}/usr/share/nogixremote/files"
+install -Dm 644 $HBB/res/nogixremote-link.desktop -t "%{buildroot}/usr/share/nogixremote/files"
+install -Dm 644 $HBB/res/128x128@2x.png "%{buildroot}/usr/share/icons/hicolor/256x256/apps/nogixremote.png"
+install -Dm 644 $HBB/res/scalable.svg "%{buildroot}/usr/share/icons/hicolor/scalable/apps/nogixremote.svg"
 
 %files
-/usr/share/rustdesk/*
-/usr/share/rustdesk/files/rustdesk.service
-/usr/share/icons/hicolor/256x256/apps/rustdesk.png
-/usr/share/icons/hicolor/scalable/apps/rustdesk.svg
-/usr/share/rustdesk/files/rustdesk.desktop
-/usr/share/rustdesk/files/rustdesk-link.desktop
+/usr/share/nogixremote/*
+/usr/share/nogixremote/files/nogixremote.service
+/usr/share/icons/hicolor/256x256/apps/nogixremote.png
+/usr/share/icons/hicolor/scalable/apps/nogixremote.svg
+/usr/share/nogixremote/files/nogixremote.desktop
+/usr/share/nogixremote/files/nogixremote-link.desktop
 
 %changelog
 # let's skip this for now
@@ -51,27 +51,27 @@ case "$1" in
   ;;
   2)
     # for upgrade
-    systemctl stop rustdesk || true
+    systemctl stop nogixremote || true
   ;;
 esac
 
 %post
-cp /usr/share/rustdesk/files/rustdesk.service /etc/systemd/system/rustdesk.service
-cp /usr/share/rustdesk/files/rustdesk.desktop /usr/share/applications/
-cp /usr/share/rustdesk/files/rustdesk-link.desktop /usr/share/applications/
-ln -sf /usr/share/rustdesk/rustdesk /usr/bin/rustdesk
+cp /usr/share/nogixremote/files/nogixremote.service /etc/systemd/system/nogixremote.service
+cp /usr/share/nogixremote/files/nogixremote.desktop /usr/share/applications/
+cp /usr/share/nogixremote/files/nogixremote-link.desktop /usr/share/applications/
+ln -sf /usr/share/nogixremote/nogixremote /usr/bin/nogixremote
 systemctl daemon-reload
-systemctl enable rustdesk
-systemctl start rustdesk
+systemctl enable nogixremote
+systemctl start nogixremote
 update-desktop-database
 
 %preun
 case "$1" in
   0)
     # for uninstall
-    systemctl stop rustdesk || true
-    systemctl disable rustdesk || true
-    rm /etc/systemd/system/rustdesk.service || true
+    systemctl stop nogixremote || true
+    systemctl disable nogixremote || true
+    rm /etc/systemd/system/nogixremote.service || true
   ;;
   1)
     # for upgrade
@@ -82,17 +82,17 @@ esac
 case "$1" in
   0)
     # for uninstall
-    rm /usr/bin/rustdesk || true
+    rm /usr/bin/nogixremote || true
     rmdir /usr/lib/rustdesk || true
-    rmdir /usr/local/rustdesk || true
-    rmdir /usr/share/rustdesk || true
-    rm /usr/share/applications/rustdesk.desktop || true
-    rm /usr/share/applications/rustdesk-link.desktop || true
+    rmdir /usr/local/nogixremote || true
+    rmdir /usr/share/nogixremote || true
+    rm /usr/share/applications/nogixremote.desktop || true
+    rm /usr/share/applications/nogixremote-link.desktop || true
     update-desktop-database
   ;;
   1)
     # for upgrade
     rmdir /usr/lib/rustdesk || true
-    rmdir /usr/local/rustdesk || true
+    rmdir /usr/local/nogixremote || true
   ;;
 esac
