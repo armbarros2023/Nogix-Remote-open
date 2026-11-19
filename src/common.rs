@@ -1227,6 +1227,12 @@ pub fn get_app_name() -> String {
     hbb_common::config::APP_NAME.read().unwrap().clone()
 }
 
+/// Name shown to the user; `get_app_name()` stays space-free because it doubles as exe, process and URI name.
+#[inline]
+pub fn get_app_display_name() -> String {
+    "Nogix Remote".to_owned()
+}
+
 #[inline]
 pub fn is_rustdesk() -> bool {
     hbb_common::config::APP_NAME.read().unwrap().eq("RustDesk")
