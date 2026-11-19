@@ -17,6 +17,10 @@ on:
       - "appimage/**"
       - "flatpak/**"
 
+# New repositories give workflows a read-only token; the build publishes releases and the SBOM.
+permissions:
+  contents: write
+
 jobs:
   run-ci:
     uses: ./.github/workflows/flutter-build.yml

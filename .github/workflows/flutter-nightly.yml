@@ -6,6 +6,10 @@ on:
     - cron: "0 0 * * *"
   workflow_dispatch:
 
+# New repositories give workflows a read-only token; the build publishes releases and the SBOM.
+permissions:
+  contents: write
+
 jobs:
   run-flutter-nightly-build:
     # Forks such as Nogix Remote build only on demand, not every night.

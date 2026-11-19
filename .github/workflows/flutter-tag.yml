@@ -9,6 +9,10 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+-[0-9]+'
       - '[0-9]+.[0-9]+.[0-9]+-[0-9]+'
 
+# New repositories give workflows a read-only token; the build publishes releases and the SBOM.
+permissions:
+  contents: write
+
 jobs:
   run-flutter-tag-build:
     uses: ./.github/workflows/flutter-build.yml
