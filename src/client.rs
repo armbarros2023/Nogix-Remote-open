@@ -5217,6 +5217,9 @@ lazy_static::lazy_static! {
         ("RShift", Key::ControlKey(ControlKey::RShift)),
         ("CTRL_ALT_DEL", Key::ControlKey(ControlKey::CtrlAltDel)),
         ("LOCK_SCREEN", Key::ControlKey(ControlKey::LockScreen)),
+        ("VK_VOLUME_UP", Key::ControlKey(ControlKey::VolumeUp)),
+        ("VK_VOLUME_DOWN", Key::ControlKey(ControlKey::VolumeDown)),
+        ("VK_VOLUME_MUTE", Key::ControlKey(ControlKey::VolumeMute)),
     ].iter().cloned().collect();
 }
 

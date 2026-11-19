@@ -1015,6 +1015,10 @@ pub fn event_to_key_events(
         _ => {}
     }
 
+    if let Some(key_event) = volume_key_event(event) {
+        return vec![key_event];
+    }
+
     let mut key_event = KeyEvent::new();
     key_event.mode = keyboard_mode.into();
 
@@ -1046,6 +1050,30 @@ pub fn event_to_key_events(
         }
     }
     key_events
+}
+
+/// Media volume keys travel as control keys in every keyboard mode, so the
+/// peer presses its own volume keys instead of a scan code it cannot replay.
+fn volume_key_event(event: &Event) -> Option<KeyEvent> {
+    let (key, down) = match event.event_type {
+        EventType::KeyPress(key) => (key, true),
+        EventType::KeyRelease(key) => (key, false),
+        _ => return None,
+    };
+    let control_key = match key {
+        Key::VolumeUp => ControlKey::VolumeUp,
+        Key::VolumeDown => ControlKey::VolumeDown,
+        Key::VolumeMute => ControlKey::VolumeMute,
+        _ => return None,
+    };
+    // Legacy is the peer path that replays control keys (Translate ignores them).
+    let mut key_event = KeyEvent {
+        mode: KeyboardMode::Legacy.into(),
+        down,
+        ..Default::default()
+    };
+    key_event.set_control_key(control_key);
+    Some(key_event)
 }
 
 pub fn send_key_event(key_event: &KeyEvent) {

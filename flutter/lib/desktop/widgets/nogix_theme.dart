@@ -117,7 +117,10 @@ class _MarkPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-/// Barra superior: marca, Configurações e Claro/escuro.
+/// Pedido para levar o foco ao campo do ID remoto ("Conexão", "Começar agora").
+final nogixFocusRemoteId = ValueNotifier<int>(0);
+
+/// Barra superior: marca, Conexão, Configurações e Claro / escuro.
 class NogixTopBar extends StatelessWidget {
   const NogixTopBar({Key? key}) : super(key: key);
 
@@ -154,15 +157,20 @@ class NogixTopBar extends StatelessWidget {
           ],
         ),
         const Spacer(),
+        _TopButton(
+          icon: Icons.link_rounded,
+          label: 'Conexão',
+          onTap: () => nogixFocusRemoteId.value++,
+        ),
         if (!bind.isDisableSettings())
           _TopButton(
             icon: Icons.tune_rounded,
-            label: translate('Settings'),
+            label: 'Configurações',
             onTap: DesktopTabPage.onAddSetting,
           ),
         _TopButton(
           icon: Icons.contrast_rounded,
-          label: translate('Theme'),
+          label: 'Claro / escuro',
           onTap: () => MyTheme.changeDarkMode(
               dark ? ThemeMode.light : ThemeMode.dark),
         ),
@@ -302,6 +310,181 @@ class NogixFooter extends StatelessWidget {
                   fontWeight: FontWeight.w700)),
         ),
       ]),
+    );
+  }
+}
+
+/// Banner da tela inicial, igual ao do NOGIX v0.3.
+class NogixHero extends StatelessWidget {
+  final VoidCallback onStart;
+  const NogixHero({Key? key, required this.onStart}) : super(key: key);
+
+  static const _impact = ['Impact', 'Haettenschweiler', 'Arial Narrow'];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 236,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: const Color(0xFF040C1B),
+        border: Border.all(color: const Color(0xFF1D3C61)),
+        borderRadius: BorderRadius.circular(16),
+        image: const DecorationImage(
+          image: AssetImage('assets/nogix/hero.jpg'),
+          fit: BoxFit.cover,
+          alignment: Alignment(-0.3, -0.2),
+        ),
+      ),
+      child: Stack(children: [
+        const Positioned(
+          top: 20,
+          right: 26,
+          child: Text.rich(
+            TextSpan(children: [
+              TextSpan(text: 'CONTROLE VISÍVEL'),
+              TextSpan(
+                  text: '  ◆  ', style: TextStyle(color: Color(0xFF54ADF8))),
+              TextSpan(text: 'SESSÃO ENCERRÁVEL'),
+            ]),
+            style: TextStyle(
+                color: Color(0xFF8CAFCF),
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1.35),
+          ),
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: FractionallySizedBox(
+            widthFactor: 0.55,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(4, 26, 30, 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(children: [
+                    Container(
+                        width: 23, height: 1.5, color: const Color(0xFF6CC3FF)),
+                    const SizedBox(width: 8),
+                    const Text('ASSISTÊNCIA À DISTÂNCIA',
+                        style: TextStyle(
+                            color: Color(0xFF92CAFA),
+                            fontSize: 11,
+                            letterSpacing: 1.55)),
+                  ]),
+                  const SizedBox(height: 8),
+                  Flexible(
+                    child: Image.asset('assets/nogix/wordmark.png',
+                        height: 58, fit: BoxFit.contain,
+                        alignment: Alignment.centerLeft),
+                  ),
+                  const SizedBox(height: 4),
+                  const FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text('SUPORTE REMOTO',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 34,
+                            height: 1,
+                            fontFamily: 'Impact',
+                            fontFamilyFallback: _impact,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1)),
+                  ),
+                  const SizedBox(height: 4),
+                  const FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text('SOB SEU CONTROLE',
+                        style: TextStyle(
+                            color: Color(0xFF68BFFF),
+                            fontSize: 21,
+                            height: 1.1,
+                            fontFamily: 'Impact',
+                            fontFamilyFallback: _impact,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.3)),
+                  ),
+                  const SizedBox(height: 18),
+                  Row(children: [
+                    ElevatedButton(
+                      onPressed: onStart,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF76C4FF),
+                        foregroundColor: const Color(0xFF061A33),
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 17, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(6)),
+                      ),
+                      child: const Text('Começar agora  ↗',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w700)),
+                    ),
+                    const SizedBox(width: 16),
+                    TextButton(
+                      onPressed: () => _howItWorks(context),
+                      style: TextButton.styleFrom(
+                          foregroundColor: const Color(0xFFE8F4FF)),
+                      child: const Text('Como funciona  →',
+                          style: TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w700)),
+                    ),
+                  ]),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ]),
+    );
+  }
+
+  void _howItWorks(BuildContext context) {
+    const steps = [
+      'No computador que vai receber ajuda, abra o Nogix Remote e informe o ID e a senha mostrados em "Seu Computador".',
+      'No outro computador, digite esse ID em "Controle um Computador Remoto" e clique em Conectar.',
+      'Quem recebe a ajuda aceita o pedido (ou informa a senha). Para acessar sem aceite, defina uma senha permanente no lápis ao lado da senha.',
+      'A sessão pode ser encerrada a qualquer momento pelos dois lados.',
+    ];
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Como funciona'),
+        content: SizedBox(
+          width: 460,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var i = 0; i < steps.length; i++)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${i + 1}.',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              color: NogixColors.primary)),
+                      const SizedBox(width: 8),
+                      Expanded(child: Text(steps[i])),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK')),
+        ],
+      ),
     );
   }
 }

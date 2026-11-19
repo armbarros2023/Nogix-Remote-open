@@ -237,10 +237,14 @@ class _ConnectionPageState extends State<ConnectionPage>
     Get.put<TextEditingController>(_idEditingController);
     Get.put<IDTextEditingController>(_idController);
     windowManager.addListener(this);
+    nogixFocusRemoteId.addListener(_nogixFocusRemoteId);
   }
+
+  void _nogixFocusRemoteId() => _idFocusNode.requestFocus();
 
   @override
   void dispose() {
+    nogixFocusRemoteId.removeListener(_nogixFocusRemoteId);
     _idController.dispose();
     windowManager.removeListener(this);
     _allPeersLoader.clear();
@@ -710,16 +714,19 @@ class _ConnectionPageState extends State<ConnectionPage>
       decoration: NogixColors.recentSection,
       child: Theme(data: MyTheme.darkTheme, child: PeerTabPage()),
     );
+    final hero = NogixHero(onStart: _nogixFocusRemoteId);
     const pad = EdgeInsets.fromLTRB(24, 18, 24, 12);
     return Column(
       children: [
         Expanded(
           child: LayoutBuilder(builder: (context, box) {
             // Small windows scroll instead of squeezing the peer list away.
-            if (box.maxHeight < 560) {
+            if (box.maxHeight < 800) {
               return SingleChildScrollView(
                 padding: pad,
                 child: Column(children: [
+                  hero,
+                  const SizedBox(height: 16),
                   cards,
                   const SizedBox(height: 16),
                   SizedBox(height: 300, child: peers),
@@ -729,6 +736,8 @@ class _ConnectionPageState extends State<ConnectionPage>
             return Padding(
               padding: pad,
               child: Column(children: [
+                hero,
+                const SizedBox(height: 16),
                 cards,
                 const SizedBox(height: 16),
                 Expanded(child: peers),

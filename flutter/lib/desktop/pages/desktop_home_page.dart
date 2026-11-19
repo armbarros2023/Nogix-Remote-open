@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hbb/common.dart';
 import 'package:flutter_hbb/common/widgets/animated_rotation_widget.dart';
 import 'package:flutter_hbb/common/widgets/custom_password.dart';
+import 'package:flutter_hbb/common/widgets/dialog.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/pages/connection_page.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_setting_page.dart';
@@ -303,8 +304,8 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                 iconBtn(Icons.refresh_rounded, 'Refresh Password',
                     () => bind.mainUpdateTemporaryPassword()),
               if (!bind.isDisableSettings())
-                iconBtn(Icons.edit_rounded, 'Change Password',
-                    () => DesktopSettingPage.switch2page(SettingsTabKey.safety)),
+                iconBtn(Icons.edit_rounded, 'Set permanent password',
+                    () => _nogixSetPermanentPassword(model)),
               if (showOneTime)
                 iconBtn(Icons.copy_rounded, 'Copy',
                     () => copy(model.serverPasswd.text)),
@@ -313,6 +314,31 @@ class _DesktopHomePageState extends State<DesktopHomePage>
         ],
       ),
     );
+  }
+
+  // Same unlock as the Security page (UAC or unlock PIN when installed),
+  // then the password dialog; a one-time-only setup becomes "both" so the
+  // new password is actually accepted.
+  Future<void> _nogixSetPermanentPassword(ServerModel model) async {
+    if (isChangePermanentPasswordDisabled()) {
+      DesktopSettingPage.switch2page(SettingsTabKey.safety);
+      return;
+    }
+    void openDialog() => setPasswordDialog(notEmptyCallback: () async {
+          if (model.verificationMethod == kUseTemporaryPassword) {
+            await model.setVerificationMethod(kUseBothPasswords);
+          }
+          await model.updatePasswordModel();
+        });
+    if (bind.mainIsInstalled()) {
+      final unlockPin = bind.mainGetUnlockPin();
+      if (unlockPin.isNotEmpty && !isUnlockPinDisabled()) {
+        checkUnlockPinDialog(unlockPin, openDialog);
+        return;
+      }
+      if (!await callMainCheckSuperUserPermission()) return;
+    }
+    openDialog();
   }
 
   buildRightPane(BuildContext context) {

@@ -847,6 +847,9 @@ class _RemoteToolbarState extends State<RemoteToolbar> {
       toolbarItems.add(_KeyboardMenu(id: widget.id, ffi: widget.ffi));
     }
     toolbarItems.add(_ChatMenu(id: widget.id, ffi: widget.ffi));
+    if (widget.ffi.connType == ConnType.defaultConn) {
+      toolbarItems.add(_SoundMenu(ffi: widget.ffi));
+    }
     if (!isWeb) {
       toolbarItems.add(_VoiceCallMenu(id: widget.id, ffi: widget.ffi));
     }
@@ -2967,6 +2970,76 @@ class _VoiceCallMenu extends StatelessWidget {
       onPressed: () => bind.sessionCloseVoiceCall(sessionId: ffi.sessionId),
       color: _ToolbarTheme.redColor,
       hoverColor: _ToolbarTheme.hoverRedColor,
+    );
+  }
+}
+
+/// Nogix Remote: sound of each computer on its own. "Hear here" mutes only
+/// the audio this computer receives; the volume buttons press the remote
+/// computer's own media keys, so its speakers can stay on or go quiet.
+class _SoundMenu extends StatelessWidget {
+  final FFI ffi;
+  const _SoundMenu({Key? key, required this.ffi}) : super(key: key);
+
+  Future<void> _tapRemoteKey(String name) async {
+    for (final down in [true, false]) {
+      await bind.sessionInputKey(
+          sessionId: ffi.sessionId,
+          name: name,
+          down: down,
+          press: false,
+          alt: false,
+          ctrl: false,
+          shift: false,
+          command: false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ffiModel = Provider.of<FfiModel>(context);
+    final canHear = ffiModel.permissions['audio'] != false;
+    final canPress = ffiModel.keyboard;
+    if (!canHear && !canPress) return Offstage();
+    return _IconSubmenuButton(
+      tooltip: 'Som',
+      icon: Icon(Icons.volume_up_rounded,
+          color: Colors.white, size: _ToolbarTheme.buttonSize - 6),
+      color: _ToolbarTheme.blueColor,
+      hoverColor: _ToolbarTheme.hoverBlueColor,
+      ffi: ffi,
+      menuChildrenGetter: (_) => [
+        if (canHear)
+          CkbMenuButton(
+            value: !bind.sessionGetToggleOptionSync(
+                sessionId: ffi.sessionId, arg: 'disable-audio'),
+            onChanged: (_) => bind.sessionToggleOption(
+                sessionId: ffi.sessionId, value: 'disable-audio'),
+            child: const Text('Ouvir aqui o som do computador remoto'),
+            ffi: ffi,
+          ),
+        if (canHear && canPress) Divider(),
+        if (canPress) ...[
+          MenuButton(
+            child: const Text('Computador remoto: aumentar volume'),
+            trailingIcon: const Icon(Icons.volume_up_rounded),
+            onPressed: () => _tapRemoteKey('VK_VOLUME_UP'),
+            ffi: ffi,
+          ),
+          MenuButton(
+            child: const Text('Computador remoto: diminuir volume'),
+            trailingIcon: const Icon(Icons.volume_down_rounded),
+            onPressed: () => _tapRemoteKey('VK_VOLUME_DOWN'),
+            ffi: ffi,
+          ),
+          MenuButton(
+            child: const Text('Computador remoto: mudo / com som'),
+            trailingIcon: const Icon(Icons.volume_off_rounded),
+            onPressed: () => _tapRemoteKey('VK_VOLUME_MUTE'),
+            ffi: ffi,
+          ),
+        ],
+      ],
     );
   }
 }
