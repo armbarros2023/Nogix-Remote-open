@@ -1056,7 +1056,12 @@ impl Config {
             rendezvous_server = PROD_RENDEZVOUS_SERVER.read().unwrap().clone();
         }
         if rendezvous_server.is_empty() {
-            rendezvous_server = CONFIG2.read().unwrap().rendezvous_server.clone();
+            // Nogix Remote: a cached server from an older build (the public RustDesk
+            // servers) must not win over the built-in list.
+            let cached = CONFIG2.read().unwrap().rendezvous_server.clone();
+            if Self::get_rendezvous_servers().contains(&cached) {
+                rendezvous_server = cached;
+            }
         }
         if rendezvous_server.is_empty() {
             rendezvous_server = Self::get_rendezvous_servers()
@@ -1083,7 +1088,8 @@ impl Config {
         if !s.is_empty() {
             return vec![s];
         }
-        let serial_obsolute = CONFIG2.read().unwrap().serial > SERIAL;
+        // Nogix Remote: the server list pushed by the public RustDesk servers is ignored.
+        let serial_obsolute = false;
         if serial_obsolute {
             let ss: Vec<String> = Self::get_option("rendezvous-servers")
                 .split(',')
@@ -3776,5 +3782,21 @@ mod tests {
         let non_service_root = Config::ipc_path_for_uid(ROOT_UID, "");
         let non_service_user = Config::ipc_path_for_uid(USER_UID, "");
         assert_ne!(non_service_root, non_service_user);
+    }
+}
+
+#[cfg(test)]
+mod nogix_rendezvous_tests {
+    use super::*;
+
+    #[test]
+    fn cached_public_server_does_not_replace_builtin_server() {
+        let old = CONFIG2.read().unwrap().rendezvous_server.clone();
+        CONFIG2.write().unwrap().rendezvous_server = "rs-ny.rustdesk.com".to_owned();
+        let server = Config::get_rendezvous_server();
+        CONFIG2.write().unwrap().rendezvous_server = old;
+        if Config::get_option("custom-rendezvous-server").is_empty() {
+            assert_eq!(server, format!("{}:{}", RENDEZVOUS_SERVERS[0], RENDEZVOUS_PORT));
+        }
     }
 }
