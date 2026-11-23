@@ -1138,6 +1138,10 @@ jobs:
           CREATE_DMG="$(command -v create-dmg)"
           CREATE_DMG="$(readlink -f "$CREATE_DMG")"
           sed -i -e 's/MAXIMUM_UNMOUNTING_ATTEMPTS=3/MAXIMUM_UNMOUNTING_ATTEMPTS=7/' "$CREATE_DMG"
+          # build.py adds MacOS/service after Xcode signed the app, which breaks the
+          # ad-hoc seal and makes macOS report the app as damaged. Re-seal it.
+          codesign --force --deep --preserve-metadata=entitlements,flags -s - ./flutter/build/macos/Build/Products/Release/NogixRemote.app
+          codesign --verify --deep --strict ./flutter/build/macos/Build/Products/Release/NogixRemote.app
           create-dmg --icon "NogixRemote.app" 200 190 --hide-extension "NogixRemote.app" --window-size 800 400 --app-drop-link 600 185 nogixremote-${{ env.VERSION }}-${{ matrix.job.arch }}.dmg ./flutter/build/macos/Build/Products/Release/NogixRemote.app
 
       - name: Upload unsigned macOS app
