@@ -6,6 +6,9 @@ import 'package:flutter_hbb/common.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_tab_page.dart';
 import 'package:flutter_hbb/models/platform_model.dart';
 import 'package:get/get.dart';
+import 'dart:convert';
+import 'package:flutter_hbb/utils/http_service.dart' as http;
+import 'package:url_launcher/url_launcher_string.dart';
 
 class NogixColors {
   NogixColors._();
@@ -486,6 +489,82 @@ class NogixHero extends StatelessWidget {
               child: const Text('OK')),
         ],
       ),
+    );
+  }
+}
+
+/// Raise on every published release; the app compares it with update.json.
+const kNogixBuild = 1;
+const _kNogixUpdateUrl =
+    'https://raw.githubusercontent.com/armbarros2023/nogix-remote-releases/main/update.json';
+
+/// Faixa "Nova versão disponível" na tela inicial, lida do repositório
+/// público de instaladores. Sem rede ou sem versão nova, não mostra nada.
+class NogixUpdateBanner extends StatefulWidget {
+  const NogixUpdateBanner({Key? key}) : super(key: key);
+
+  @override
+  State<NogixUpdateBanner> createState() => _NogixUpdateBannerState();
+}
+
+class _NogixUpdateBannerState extends State<NogixUpdateBanner> {
+  String? _version;
+  String? _url;
+
+  @override
+  void initState() {
+    super.initState();
+    _check();
+  }
+
+  Future<void> _check() async {
+    try {
+      final resp = await http.get(Uri.parse(_kNogixUpdateUrl));
+      if (resp.statusCode != 200) return;
+      final info = jsonDecode(resp.body);
+      final build = info['build'];
+      final url = info['url'];
+      // Only GitHub pages of the releases repository are opened.
+      if (build is int &&
+          build > kNogixBuild &&
+          url is String &&
+          url.startsWith(
+              'https://github.com/armbarros2023/nogix-remote-releases/') &&
+          mounted) {
+        setState(() {
+          _version = '${info['version'] ?? build}';
+          _url = url;
+        });
+      }
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_url == null) return const SizedBox.shrink();
+    return Container(
+      margin: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: NogixColors.badgeBg,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(children: [
+        const Icon(Icons.system_update_alt_rounded,
+            color: NogixColors.badgeInk, size: 20),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text('Nova versão do Nogix Remote disponível: $_version',
+              style: const TextStyle(
+                  color: NogixColors.badgeInk, fontWeight: FontWeight.w700)),
+        ),
+        TextButton(
+          onPressed: () => launchUrlString(_url!),
+          child: const Text('Baixar',
+              style: TextStyle(
+                  color: NogixColors.badgeInk, fontWeight: FontWeight.w800)),
+        ),
+      ]),
     );
   }
 }

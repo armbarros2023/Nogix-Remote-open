@@ -189,6 +189,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       child: Column(
         children: [
           const NogixTopBar(),
+          const NogixUpdateBanner(),
           buildPresetPasswordWarning(),
           Obx(() => buildHelpCards(stateGlobal.updateUrl.value))
               .paddingSymmetric(horizontal: 12),
