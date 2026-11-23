@@ -870,7 +870,12 @@ class _DesktopHomePageState extends State<DesktopHomePage>
         systemError = error;
         setState(() {});
       }
-      final v = await mainGetBoolOption(kOptionStopService);
+      var v = await mainGetBoolOption(kOptionStopService);
+      if (v) {
+        // Nogix: o serviço sempre fica pronto para conexão, sem botão "Iniciar serviço".
+        await mainSetBoolOption(kOptionStopService, false);
+        v = false;
+      }
       if (v != svcStopped.value) {
         svcStopped.value = v;
         setState(() {});

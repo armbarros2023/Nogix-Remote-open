@@ -2513,19 +2513,38 @@ pub fn rustdesk_interval(i: Interval) -> ThrottledInterval {
 }
 
 /// Nogix Remote defaults, applied before custom.txt so a custom config still wins:
-/// idle incoming sessions close after 15 minutes, the remote screen locks when a
-/// session ends, and the one-time password has 8 characters.
+/// idle incoming sessions close after 15 minutes and the one-time password has 8
+/// characters. The remote screen is NOT locked when a session ends, so closing the
+/// connection never asks for the computer password again.
 fn set_nogix_default_settings() {
     for (map, key, value) in [
         (&*config::DEFAULT_SETTINGS, "allow-auto-disconnect", "Y"),
         (&*config::DEFAULT_SETTINGS, "auto-disconnect-timeout", "15"),
         (&*config::DEFAULT_SETTINGS, "temporary-password-length", "8"),
-        (&*config::DEFAULT_DISPLAY_SETTINGS, "lock_after_session_end", "Y"),
     ] {
         map.write()
             .unwrap()
             .entry(key.to_owned())
             .or_insert_with(|| value.to_owned());
+    }
+    nogix_reset_server_options();
+}
+
+/// Installs that used the public RustDesk servers (or a hand-typed server) keep the
+/// old address in their config file. Always go back to the built-in Nogix server and
+/// key so nobody has to type them in Settings → Network.
+fn nogix_reset_server_options() {
+    let builtin = config::RENDEZVOUS_SERVERS[0];
+    for (key, ok) in [
+        ("custom-rendezvous-server", builtin),
+        ("key", config::RS_PUB_KEY),
+        ("relay-server", ""),
+        ("api-server", ""),
+    ] {
+        let cur = Config::get_option(key);
+        if !cur.is_empty() && cur != ok {
+            Config::set_option(key.to_owned(), ok.to_owned());
+        }
     }
 }
 

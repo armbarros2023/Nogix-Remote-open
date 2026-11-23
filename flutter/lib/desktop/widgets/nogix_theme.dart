@@ -282,7 +282,16 @@ class NogixChip extends StatelessWidget {
   }
 }
 
-/// Rodapé: NOGIX, estado do serviço, crédito ao RustDesk e versão.
+/// "1.5.3 · 23/11/2026": versão e data da compilação (o crédito ao RustDesk exigido
+/// pela AGPL fica na tela Sobre).
+Future<String> nogixVersionLabel() async {
+  var date = (await bind.mainGetBuildDate()).split(' ').first;
+  final p = date.split('-');
+  if (p.length == 3) date = '${p[2]}/${p[1]}/${p[0]}';
+  return '$version · $date';
+}
+
+/// Rodapé: NOGIX, estado do serviço e versão.
 class NogixFooter extends StatelessWidget {
   final Widget status;
   const NogixFooter({Key? key, required this.status}) : super(key: key);
@@ -299,18 +308,18 @@ class NogixFooter extends StatelessWidget {
                 color: NogixColors.ink(context))),
         const SizedBox(width: 8),
         Expanded(child: status),
-        // Crédito exigido pela licença AGPL do RustDesk.
-        loadPowered(context).marginOnly(top: 0, right: 14),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
           decoration: BoxDecoration(
               color: NogixColors.badgeBg,
               borderRadius: BorderRadius.circular(6)),
-          child: Text(version,
-              style: const TextStyle(
-                  color: NogixColors.badgeInk,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700)),
+          child: FutureBuilder<String>(
+              future: nogixVersionLabel(),
+              builder: (_, snap) => Text(snap.data ?? version,
+                  style: const TextStyle(
+                      color: NogixColors.badgeInk,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700))),
         ),
       ]),
     );
@@ -494,7 +503,7 @@ class NogixHero extends StatelessWidget {
 }
 
 /// Raise on every published release; the app compares it with update.json.
-const kNogixBuild = 2;
+const kNogixBuild = 3;
 const _kNogixUpdateUrl =
     'https://raw.githubusercontent.com/armbarros2023/nogix-remote-releases/main/update.json';
 
