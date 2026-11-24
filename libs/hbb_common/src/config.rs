@@ -1345,6 +1345,18 @@ impl Config {
 
     pub fn get_id() -> String {
         let mut id = CONFIG.read().unwrap().id.clone();
+        #[cfg(not(any(target_os = "android", target_os = "ios")))]
+        {
+            // Nogix: cada instalação tem o seu ID. O ID do RustDesk vem do MAC da placa de
+            // rede, o que repete o número em máquinas clonadas ou com o mesmo adaptador.
+            // Aqui ele nasce da chave própria da instalação e depois fica fixo.
+            static LEGACY_ID: std::sync::OnceLock<Option<String>> = std::sync::OnceLock::new();
+            let legacy = LEGACY_ID.get_or_init(|| Self::get_auto_id());
+            if id.is_empty() || Some(&id) == legacy.as_ref() {
+                id = Self::nogix_install_id();
+                Config::set_id(&id);
+            }
+        }
         if id.is_empty() {
             if let Some(tmp) = Config::gen_id() {
                 id = tmp;
@@ -1352,6 +1364,15 @@ impl Config {
             }
         }
         id
+    }
+
+    #[cfg(not(any(target_os = "android", target_os = "ios")))]
+    fn nogix_install_id() -> String {
+        use sha2::{Digest, Sha256};
+        let pk = Self::get_key_pair().1;
+        let h = Sha256::digest(&pk);
+        let n = u64::from_be_bytes(h[..8].try_into().unwrap());
+        (100_000_000 + n % 900_000_000).to_string()
     }
 
     pub fn get_id_or(b: String) -> String {

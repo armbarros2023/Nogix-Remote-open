@@ -509,7 +509,7 @@ class NogixHero extends StatelessWidget {
 }
 
 /// Raise on every published release; the app compares it with update.json.
-const kNogixBuild = 5;
+const kNogixBuild = 6;
 const _kNogixUpdateUrl =
     'https://raw.githubusercontent.com/armbarros2023/nogix-remote-releases/main/update.json';
 

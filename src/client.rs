@@ -3306,7 +3306,7 @@ impl LoginConfigHandler {
                 option.disable_clipboard = f(self.get_toggle_option("disable-clipboard"));
                 option.show_remote_cursor = f(self.get_toggle_option("show-remote-cursor"));
                 option.enable_file_transfer = f(self.config.enable_file_copy_paste.v);
-                option.lock_after_session_end = f(self.config.lock_after_session_end.v);
+                option.lock_after_session_end = f(false);
                 if config.show_my_cursor.v {
                     config.show_my_cursor.v = false;
                     option.show_my_cursor = BoolOption::No.into();
@@ -3482,7 +3482,7 @@ impl LoginConfigHandler {
         if name == "show-remote-cursor" {
             self.config.show_remote_cursor.v
         } else if name == "lock-after-session-end" {
-            self.config.lock_after_session_end.v
+            false // Nogix: nunca bloqueia a tela remota ao encerrar
         } else if name == keys::OPTION_TERMINAL_PERSISTENT {
             self.config.terminal_persistent.v
         } else if name == "privacy-mode" {

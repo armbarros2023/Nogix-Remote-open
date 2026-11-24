@@ -4952,8 +4952,10 @@ impl Connection {
             scrap::codec::Encoder::update(scrap::codec::EncodingUpdate::Update(self.inner.id(), q));
         }
         if let Ok(q) = o.lock_after_session_end.enum_value() {
+            // Nogix: o Nogix Remote nunca bloqueia a tela ao encerrar a sessão,
+            // mesmo que o controlador (ou uma versão antiga) peça isso.
             if q != BoolOption::NotSet {
-                self.lock_after_session_end = q == BoolOption::Yes;
+                self.lock_after_session_end = false;
             }
         }
         #[cfg(not(any(target_os = "android", target_os = "ios")))]

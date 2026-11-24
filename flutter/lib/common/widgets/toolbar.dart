@@ -1132,8 +1132,8 @@ Future<List<TToggleMenu>> toolbarDisplayToggle(
             : null,
         child: Text(translate('Disable clipboard'))));
   }
-  // lock after session end
-  if (isDefaultConn && ffiModel.keyboard && !ffiModel.isPeerAndroid) {
+  // lock after session end (Nogix: removido, a tela remota nunca é bloqueada)
+  if (false && isDefaultConn && ffiModel.keyboard && !ffiModel.isPeerAndroid) {
     final enabled = !ffiModel.viewOnly;
     final option = 'lock-after-session-end';
     final value =
