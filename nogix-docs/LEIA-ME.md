@@ -19,9 +19,9 @@ Você não precisa instalar nada no PC. O build leva de 1 a 2 horas na primeira 
    ```
 3. No GitHub, abra **Actions → Flutter Nightly Build → Run workflow**.
 4. Ao terminar, os instaladores ficam em **Releases → nightly**:
-   - Windows: `nogixremote-1.5.3-x86_64.exe` (portátil/instalador) e `.msi`
-   - macOS: `nogixremote-1.5.3-aarch64.dmg` (Apple Silicon) e `-x86_64.dmg` (Intel)
-   - Linux: `nogixremote-1.5.3-x86_64.deb`, `.rpm`, `-suse.rpm` e o pacote do Arch
+   - Windows: `nogixremote-1.5.4-x86_64.exe` (portátil/instalador) e `.msi`
+   - macOS: `nogixremote-1.5.4-aarch64.dmg` (Apple Silicon) e `-x86_64.dmg` (Intel)
+   - Linux: `nogixremote-1.5.4-x86_64.deb`, `.rpm`, `-suse.rpm` e o pacote do Arch
 
 Sem certificados configurados, os instaladores saem **sem assinatura**. O Windows mostra o aviso do SmartScreen ("Mais informações → Executar assim mesmo"). No Mac, abra pelo botão direito → Abrir.
 

@@ -282,7 +282,7 @@ class NogixChip extends StatelessWidget {
   }
 }
 
-/// "1.5.3 · 23/11/2026": versão e data da compilação (o crédito ao RustDesk exigido
+/// "1.5.4 · 23/11/2026": versão e data da compilação (o crédito ao RustDesk exigido
 /// pela AGPL fica na tela Sobre).
 Future<String> nogixVersionLabel() async {
   var date = (await bind.mainGetBuildDate()).split(' ').first;
