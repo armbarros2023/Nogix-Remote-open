@@ -1371,7 +1371,7 @@ impl Config {
         use sha2::{Digest, Sha256};
         let pk = Self::get_key_pair().1;
         let h = Sha256::digest(&pk);
-        let n = u64::from_be_bytes(h[..8].try_into().unwrap());
+        let n = h[..8].iter().fold(0u64, |a, b| (a << 8) | *b as u64);
         (100_000_000 + n % 900_000_000).to_string()
     }
 
