@@ -2542,7 +2542,8 @@ fn nogix_reset_server_options() {
         ("api-server", ""),
     ] {
         let cur = Config::get_option(key);
-        if !cur.is_empty() && cur != ok {
+        // Também preenche quando está vazio, para Configurações → Rede já mostrar o servidor e a chave.
+        if cur != ok {
             Config::set_option(key.to_owned(), ok.to_owned());
         }
     }

@@ -769,88 +769,80 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       children: [
         Container(
           margin: EdgeInsets.fromLTRB(
-              0, marginTop, 0, bind.isIncomingOnly() ? marginTop : 0),
-          child: Container(
+              17, marginTop, 17, bind.isIncomingOnly() ? marginTop : 0),
+          child: Builder(builder: (context) {
+            const amber = Color(0xFFE0A93B);
+            return Container(
               decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Color.fromARGB(255, 226, 66, 188),
-                  Color.fromARGB(255, 244, 114, 124),
-                ],
-              )),
-              padding: EdgeInsets.all(20),
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: (title.isNotEmpty
-                          ? <Widget>[
-                              Center(
-                                  child: Text(
-                                translate(title),
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 15),
-                              ).marginOnly(bottom: 6)),
-                            ]
-                          : <Widget>[]) +
-                      <Widget>[
-                        if (content.isNotEmpty)
-                          Text(
-                            translate(content),
+                color: NogixColors.field(context),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: amber.withOpacity(0.55)),
+              ),
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+              child: Row(children: [
+                Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                      color: amber.withOpacity(0.16),
+                      borderRadius: BorderRadius.circular(10)),
+                  child: const Icon(Icons.shield_outlined,
+                      color: amber, size: 22),
+                ).marginOnly(right: 14),
+                Expanded(
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                      if (title.isNotEmpty)
+                        Text(translate(title),
                             style: TextStyle(
-                                height: 1.5,
-                                color: Colors.white,
-                                fontWeight: FontWeight.normal,
-                                fontSize: 13),
-                          ).marginOnly(bottom: 20)
-                      ] +
-                      (btnText.isNotEmpty
-                          ? <Widget>[
-                              Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    FixedWidthButton(
-                                      width: 150,
-                                      padding: 8,
-                                      isOutline: true,
-                                      text: translate(btnText),
-                                      textColor: Colors.white,
-                                      borderColor: Colors.white,
-                                      textSize: 20,
-                                      radius: 10,
-                                      onTap: onPressed,
-                                    )
-                                  ])
-                            ]
-                          : <Widget>[]) +
-                      (help != null
-                          ? <Widget>[
-                              Center(
-                                  child: InkWell(
-                                      onTap: () async =>
-                                          await launchUrl(Uri.parse(link!)),
-                                      child: Text(
-                                        translate(help),
-                                        style: TextStyle(
-                                            decoration:
-                                                TextDecoration.underline,
-                                            color: Colors.white,
-                                            fontSize: 12),
-                                      )).marginOnly(top: 6)),
-                            ]
-                          : <Widget>[]))),
+                                color: NogixColors.ink(context),
+                                fontWeight: FontWeight.w800,
+                                fontSize: 14)),
+                      if (content.isNotEmpty)
+                        Text(translate(content),
+                            style: TextStyle(
+                                height: 1.4,
+                                color: NogixColors.muted(context),
+                                fontSize: 12.5)).marginOnly(
+                            top: title.isNotEmpty ? 2 : 0),
+                      if (help != null)
+                        InkWell(
+                            onTap: () async =>
+                                await launchUrl(Uri.parse(link!)),
+                            child: Text(translate(help),
+                                style: const TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    color: NogixColors.primaryB,
+                                    fontSize: 12))).marginOnly(top: 4),
+                    ])),
+                if (btnText.isNotEmpty)
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: NogixColors.primary,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10))),
+                    onPressed: onPressed,
+                    child: Text(translate(btnText),
+                        style: const TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.w700)),
+                  ).marginOnly(left: 14, right: closeButton == true ? 28 : 0),
+              ]),
+            );
+          }),
         ),
         if (closeButton != null && closeButton == true)
           Positioned(
             top: 18,
-            right: 0,
+            right: 17,
             child: IconButton(
               icon: Icon(
                 Icons.close,
-                color: Colors.white,
+                color: NogixColors.muted(context),
                 size: 20,
               ),
               onPressed: closeCard,
