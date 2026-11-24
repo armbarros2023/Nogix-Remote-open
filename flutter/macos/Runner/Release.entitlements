@@ -6,6 +6,9 @@
 	<false/>
 	<key>com.apple.security.cs.allow-jit</key>
 	<true/>
+	<!-- App assinado só localmente (ad-hoc): sem isto o macOS recusa carregar as bibliotecas do app e ele fecha sem erro. -->
+	<key>com.apple.security.cs.disable-library-validation</key>
+	<true/>
 	<key>com.apple.security.device.audio-input</key>
 	<true/>
 	<key>com.apple.security.network.client</key>
