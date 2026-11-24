@@ -746,7 +746,7 @@ class _ConnectionPageState extends State<ConnectionPage>
           }),
         ),
         SizedBox(
-            height: 44, child: NogixFooter(status: OnlineStatusWidget())),
+            height: 86, child: NogixFooter(status: OnlineStatusWidget())),
       ],
     );
   }

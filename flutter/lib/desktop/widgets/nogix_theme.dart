@@ -308,19 +308,25 @@ class NogixFooter extends StatelessWidget {
                 color: NogixColors.ink(context))),
         const SizedBox(width: 8),
         Expanded(child: status),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-          decoration: BoxDecoration(
-              color: NogixColors.badgeBg,
-              borderRadius: BorderRadius.circular(6)),
-          child: FutureBuilder<String>(
-              future: nogixVersionLabel(),
-              builder: (_, snap) => Text(snap.data ?? version,
-                  style: const TextStyle(
-                      color: NogixColors.badgeInk,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700))),
-        ),
+        // Logo da Arbtech Info centralizada sobre a versão e a data.
+        Column(mainAxisSize: MainAxisSize.min, children: [
+          Image.asset('assets/nogix/arbtech.png',
+              height: 46, filterQuality: FilterQuality.high),
+          const SizedBox(height: 4),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+                color: NogixColors.badgeBg,
+                borderRadius: BorderRadius.circular(6)),
+            child: FutureBuilder<String>(
+                future: nogixVersionLabel(),
+                builder: (_, snap) => Text(snap.data ?? version,
+                    style: const TextStyle(
+                        color: NogixColors.badgeInk,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700))),
+          ),
+        ]),
       ]),
     );
   }
