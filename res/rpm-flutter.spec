@@ -1,5 +1,5 @@
 Name:       nogixremote
-Version:    1.5.3
+Version:    1.5.4
 Release:    0
 Summary:    Nogix Remote
 License:    GPL-3.0
